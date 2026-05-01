@@ -3,3 +3,4 @@ test_rag.py
 test_llm.py
 test_llm_rag.py
 test_env.py
+test_decision.py

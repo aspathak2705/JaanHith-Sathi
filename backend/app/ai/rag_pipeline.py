@@ -76,7 +76,14 @@ class RAGPipeline:
         #  Generate answer
         answer = self.llm.generate(prompt)
 
+        if "I don't have enough information" in answer:
+            return {
+                "answer": answer.strip(),
+                "sources": []  #  remove fake sources
+            }
+
         return {
             "answer": answer.strip(),
+            "Source":"rag",
             "sources": [doc["id"] for doc in retrieved_docs]
         }
