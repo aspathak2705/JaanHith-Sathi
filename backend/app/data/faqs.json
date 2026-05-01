@@ -1,0 +1,56 @@
+[
+  {
+    "id": "eligibility_general",
+    "title": "General Eligibility for Voting in India",
+    "content": "A person is eligible to vote in India if they meet three primary conditions. First, they must be a citizen of India. Second, they must be at least 18 years of age on the qualifying date defined by the Election Commission. Third, their name must be included in the electoral roll of the constituency where they reside. Merely being eligible by age or citizenship does not automatically grant voting rights; registration in the electoral roll is mandatory. Individuals who are not listed in the electoral roll will not be allowed to vote even if they satisfy other conditions. Eligibility is determined strictly by legal criteria, and there is no discretion by officials once these conditions are verified.",
+    "tags": ["eligibility", "voting_rights"]
+  },
+  {
+    "id": "eligibility_disqualifications",
+    "title": "Disqualification from Voting",
+    "content": "Certain individuals may be disqualified from voting even if they meet general eligibility criteria. Disqualification can occur if a person is declared to be of unsound mind by a competent court. Additionally, individuals convicted of specific electoral offenses or corrupt practices may be temporarily or permanently barred from voting, depending on legal provisions. Non-citizens are not allowed to vote under any circumstances. It is important to note that disqualification is based on legal rulings and not administrative decisions. If a person believes they have been wrongly disqualified, they must seek legal remedy or correction through the appropriate election authorities.",
+    "tags": ["eligibility", "disqualification"]
+  },
+  {
+    "id": "documents_registration",
+    "title": "Documents Required for Voter Registration",
+    "content": "To register as a voter in India, applicants must provide valid supporting documents that establish identity, age, and place of residence. Identity proof may include documents such as Aadhaar card, passport, driving license, or PAN card. Address proof can include utility bills, bank statements, rental agreements, or official government correspondence that confirms residence. Age proof is required to confirm that the applicant is at least 18 years old and may include a birth certificate, school leaving certificate, or passport. All documents must be clear, valid, and up-to-date. Submission of incomplete or incorrect documents may lead to rejection or delay in the application process.",
+    "tags": ["documents", "registration"]
+  },
+  {
+    "id": "registration_process",
+    "title": "Step-by-Step Voter Registration Process",
+    "content": "The voter registration process in India involves submitting an application and undergoing verification. Applicants must fill Form 6, which is available online through the National Voters' Service Portal (NVSP) or can be submitted offline at designated election offices. After submission, the provided details and documents are reviewed by election officials. A field verification may be conducted to confirm the applicant's residence. Once verification is complete and approved, the applicant’s name is added to the electoral roll. The process may take several weeks depending on verification timelines. Applicants are advised to track their application status through official channels.",
+    "tags": ["process", "registration"]
+  },
+  {
+    "id": "voter_id_card",
+    "title": "Voter ID Card (EPIC) Overview",
+    "content": "The Voter ID card, also known as the Elector Photo Identity Card (EPIC), is an official document issued by the Election Commission of India to registered voters. It serves as both identity proof and confirmation of registration in the electoral roll. The card contains key details such as the voter’s name, photograph, unique EPIC number, and constituency information. While having a Voter ID card is useful, the most critical requirement for voting is the inclusion of the voter’s name in the electoral roll. In some cases, voters may be allowed to vote using alternative identity documents if their name is listed in the roll.",
+    "tags": ["voter_id", "identity"]
+  },
+  {
+    "id": "correction_update",
+    "title": "Updating or Correcting Voter Details",
+    "content": "If a voter needs to update or correct personal details such as name, address, age, or photograph in their voter records, they must submit Form 8. This process can be completed online through official election portals or offline at designated offices. Corrections are subject to verification by election authorities to ensure accuracy and prevent misuse. It is important to provide accurate supporting information when requesting changes. Incorrect or misleading submissions may lead to rejection. Once approved, the updated details are reflected in the electoral roll and, if applicable, in the Voter ID card.",
+    "tags": ["correction", "update"]
+  },
+  {
+    "id": "voting_process_day",
+    "title": "Voting Process on Election Day",
+    "content": "On election day, voters must visit their assigned polling station as indicated in the electoral roll. Upon arrival, election officials verify the voter’s identity and confirm their presence in the electoral list. Once verified, the voter is allowed to cast their vote using an Electronic Voting Machine (EVM). The voting process is designed to be secure, confidential, and efficient. Voters are required to follow instructions provided by polling staff and maintain order within the polling station. Only registered voters whose names appear on the electoral roll are permitted to vote.",
+    "tags": ["voting", "process"]
+  },
+  {
+    "id": "checking_name_roll",
+    "title": "Checking Name in Electoral Roll",
+    "content": "Before voting, individuals should verify whether their name is included in the electoral roll. This can be done through official election websites or by contacting local election offices. The electoral roll contains the list of all registered voters in a constituency. If a person’s name is not found in the roll, they will not be allowed to vote even if they possess a Voter ID card. In such cases, individuals must apply for registration or correction well before election deadlines. Regular verification of voter status helps avoid last-minute issues on election day.",
+    "tags": ["electoral_roll", "verification"]
+  },
+  {
+    "id": "online_vs_offline_registration",
+    "title": "Online vs Offline Registration Methods",
+    "content": "Voter registration in India can be completed through both online and offline methods. The online method involves submitting Form 6 through the National Voters' Service Portal (NVSP) or mobile applications provided by election authorities. This method is convenient and allows users to track application status digitally. The offline method requires submitting physical forms at designated election offices along with supporting documents. While both methods follow the same verification process, online registration is generally faster and more accessible. Applicants should choose the method that best suits their accessibility and convenience.",
+    "tags": ["registration", "methods"]
+  }
+]
