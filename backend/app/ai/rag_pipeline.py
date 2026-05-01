@@ -1,4 +1,5 @@
 import json
+import os
 import faiss
 import numpy as np
 
@@ -8,10 +9,14 @@ from app.ai.prompt_templates import RAG_PROMPT
 
 
 class RAGPipeline:
-    def __init__(self, data_path="backend/app/data/faqs.json"):
+    def __init__(self, data_path=None):
         #  Initialize models
         self.embedding_model = EmbeddingModel()
         self.llm = LLMService()
+
+        if data_path is None:
+            base_dir = os.path.dirname(os.path.dirname(__file__))  
+            data_path = os.path.join(base_dir, "data", "faqs.json")
 
         #  Load knowledge base
         self.documents = self.load_documents(data_path)
@@ -85,5 +90,6 @@ class RAGPipeline:
         return {
             "answer": answer.strip(),
             "Source":"rag",
-            "sources": [doc["id"] for doc in retrieved_docs]
+            "sources": [doc["id"] for doc in retrieved_docs],
+            "meta":{}
         }

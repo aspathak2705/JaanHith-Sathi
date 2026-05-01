@@ -80,8 +80,10 @@ class DecisionEngine:
 
         #  fallback
         return {
-            "answer": "I'm not sure how to answer that yet.",
-            "source": "fallback"
+        "answer": "I’m not sure how to answer that yet.",
+        "source": "fallback",
+        "sources": [],
+        "meta":{}
         }
     
     def handle_rule_based(self, query, user_context):
@@ -89,7 +91,8 @@ class DecisionEngine:
             return {
                 "answer": "I need some information like age and citizenship to determine your eligibility.",
                 "source": "rule",
-                "Sources": []
+                "Sources": [],
+                "meta":{}
             }
 
         age = user_context.get("age")
@@ -99,13 +102,15 @@ class DecisionEngine:
             return {
                 "answer": "You are eligible to vote.",
                 "source": "rule",
-                "Sources": []
+                "Sources": [],
+                "meta":{}
             }
         else:
             return {
                 "answer": "You are not eligible to vote based on the provided information.",
                 "source": "rule",
-                "Sources": []
+                "Sources": [],
+                "meta":{}
             }      
         
     def handle_eligibility_explanation(self, user_context):
@@ -113,7 +118,8 @@ class DecisionEngine:
             return {
                 "answer": "I need your details to explain eligibility.",
                 "source": "rule",
-                "Sources": []
+                "Sources": [],
+                "meta":{}
             }
 
         age = user_context.get("age")
@@ -130,7 +136,8 @@ class DecisionEngine:
         explanation = self.rag.llm.generate(context)
 
         return {
-            "answer": "...",
-            "source": "rule+llm ",
-            "sources": []  
+            "answer":explanation.strip(),
+            "source":"rule+llm",
+            "sources": [],
+            "meta":{}
         }

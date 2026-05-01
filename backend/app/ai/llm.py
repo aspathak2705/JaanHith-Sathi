@@ -31,7 +31,7 @@ class LLMService:
                 }
             ],
             temperature=0.2,
-            max_tokens=512,
+            max_tokens=300,
             stream=False
         )
 
