@@ -1,6 +1,8 @@
 from nltk.stem import WordNetLemmatizer
 from app.services.journey_service import get_journey_info
 from app.services.state_service import update_user_state
+from app.services.interaction_service import get_user_history
+from app.services.recommendation_service import generate_recommendations
 
 lemmatizer = WordNetLemmatizer()
 
@@ -68,7 +70,17 @@ class DecisionEngine:
 
     # MAIN ROUTER 
     def route(self, query: str, context: dict = None, db=None):
+        if not context:
+            return {
+                "answer": "User context not found",
+                "source": "system",
+                "sources": [],
+                "meta": {}
+            }
         intent = self.detect_intent(query)
+
+        history = get_user_history(db, context["user_id"])
+        recommendations = generate_recommendations(user_state, history)
 
         #  ALWAYS derive journey info
         user_state = context.get("state", "NEW_USER") if context else "NEW_USER"
@@ -87,8 +99,17 @@ class DecisionEngine:
         elif intent == "eligibility":
             result = self.handle_rule_based(context, journey)
 
-            if context and context.get("age") >= 18 and context.get("is_citizen"):
-                update_user_state(db, context["user_id"], "ELIGIBILITY_CHECKED")
+            current_state = context.get("state")
+
+            # ✅ Only update if not already updated
+            if (
+                current_state != "ELIGIBILITY_CHECKED"
+                and context.get("age") >= 18
+                and context.get("is_citizen")
+            ):
+                new_state = update_user_state(db, context["user_id"], "ELIGIBILITY_CHECKED")
+                updated_journey = get_journey_info(new_state)
+                result["meta"] = updated_journey
 
             return result
 
@@ -97,17 +118,19 @@ class DecisionEngine:
             return self.handle_eligibility_explanation(context, journey)
         
         # 4. RAG (DOCUMENTS / PROCESS / GENERAL)
-        elif intent == "process" or intent == "documents" or intent == "general":
+        elif intent == "process":
             rag_result = self.rag.generate_answer(query)
 
-            update_user_state(db, context["user_id"], "REGISTERED")
+            new_state = update_user_state(db, context["user_id"], "REGISTERED")
+
+            updated_journey = get_journey_info(new_state)
 
             return {
-                "answer": rag_result.get("answer"),
-                "source": "rag",
-                "sources": rag_result.get("sources", []),
-                "meta": journey
-            }
+                    "answer": rag_result.get("answer"),
+                    "source": "rag",
+                    "sources": rag_result.get("sources", []),
+                    "meta": updated_journey
+                }
 
         # FALLBACK
         return {

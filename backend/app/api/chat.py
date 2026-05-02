@@ -6,8 +6,9 @@ from app.db.session import get_db
 from app.ai.rag_pipeline import RAGPipeline
 from app.services.decision_engine import DecisionEngine
 from app.services.user_context import get_user_context
+from app.services.interaction_service import log_interaction
 
-router = APIRouter()
+router = APIRouter(prefix="/chat", tags=["Chat"])
 
 # Initialize once
 rag = RAGPipeline()
@@ -71,10 +72,23 @@ def chat(request: ChatRequest, db: Session = Depends(get_db)):
             "meta": {"error": str(e)}
         }
 
-    #  FINAL RESPONSE
+    #  LOG INTERACTION
+    log_interaction(
+        db=db,
+        user_id=request.user_id,
+        query=request.message,
+        response=result.get("answer"),
+        intent=engine.detect_intent(request.message),
+        state=result.get("meta", {}).get("current_stage")
+    )
+
+    #  RETURN RESPONSE
     return {
-        "answer": result.get("answer"),
-        "source": str(result.get("source") or "unknown"),
-        "sources": result.get("sources", []),
-        "meta": result.get("meta", {})
+        "success": True,
+        "message": result.get("answer"),
+        "data": {
+            "source": result.get("source"),
+            "sources": result.get("sources", [])
+        },
+        "meta": result.get("meta")
     }

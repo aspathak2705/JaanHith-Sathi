@@ -25,9 +25,8 @@ def update_user_state(db: Session, user_id: int, new_state: str):
     #  VALIDATION CHECK
     allowed_next_states = VALID_TRANSITIONS.get(current_state, [])
 
-    if new_state not in allowed_next_states:
-        print(f" Invalid transition: {current_state} → {new_state}")
-        return current_state  #  reject invalid transition
+    if new_state not in VALID_TRANSITIONS.get(current_state, []):
+        return current_state #  reject invalid transition
 
     #  VALID TRANSITION → UPDATE
     state.state = new_state

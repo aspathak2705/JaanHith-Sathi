@@ -4,8 +4,12 @@ from app.api.election import router as election_router
 from app.core.database import Base, engine
 from app.models import user, state
 from app.api.chat import router as chat_router
+from app.api import auth
+
 
 app = FastAPI(title="CivicGuide AI Backend")
+
+app.include_router(auth.router)
 
 app.include_router(chat_router)
 
