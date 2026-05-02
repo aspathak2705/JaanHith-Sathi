@@ -1,26 +1,38 @@
+from typing import Any, Dict, List, Optional
+
 from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
 from pydantic import BaseModel
-from typing import List, Dict, Any
-from app.db.session import get_db
+from sqlalchemy.orm import Session
+
 from app.ai.rag_pipeline import RAGPipeline
+from app.db.session import get_db
 from app.services.decision_engine import DecisionEngine
-from app.services.user_context import get_user_context
 from app.services.interaction_service import log_interaction
+from app.services.location_service import get_booths, get_nearest_booths
+from app.services.user_context import get_user_context
 
 router = APIRouter(prefix="/chat", tags=["Chat"])
 
-# Initialize once
-rag = RAGPipeline()
-engine = DecisionEngine(rag)
+intent_engine = DecisionEngine(None)
+phase3_engine = None
 
-# Request Schema
+
+def get_phase3_engine() -> DecisionEngine:
+    global phase3_engine
+    if phase3_engine is None:
+        phase3_engine = DecisionEngine(RAGPipeline())
+    return phase3_engine
+
+
 class ChatRequest(BaseModel):
     user_id: int
     message: str
+    district: Optional[str] = None
+    city: Optional[str] = None
+    lat: Optional[float] = None
+    lng: Optional[float] = None
 
 
-# Response Schema
 class ChatResponse(BaseModel):
     answer: str
     source: str
@@ -28,67 +40,129 @@ class ChatResponse(BaseModel):
     meta: Dict[str, Any] = {}
 
 
-# Chat Endpoint
+def _log_and_return(
+    db: Session,
+    user_id: int,
+    query: str,
+    response: Dict[str, Any],
+    intent: str,
+):
+    log_interaction(
+        db=db,
+        user_id=user_id,
+        query=query,
+        response=response.get("answer"),
+        intent=intent,
+        state=response.get("meta", {}).get("current_stage"),
+    )
+    return response
+
+
 @router.post("/chat", response_model=ChatResponse)
 def chat(request: ChatRequest, db: Session = Depends(get_db)):
-
-    #  Fetch user context from DB
     user_context = get_user_context(db, request.user_id)
 
     if not user_context:
         return {
-            "answer": "User not found",
+            "answer": "User not found.",
             "source": "system",
             "sources": [],
-            "meta": {}
+            "meta": {},
         }
 
-    #  SIMPLE LOGGING
-    print("\n======================")
-    print("USER:", request.user_id)
-    print("STATE:", user_context.get("state"))
-    print("QUERY:", request.message)
+    intent = intent_engine.detect_intent(request.message)
 
     try:
-        #  Route through decision engine
-        result = engine.route(
+        if intent in {"FIND_BOOTH", "GET_DIRECTIONS"}:
+            if not request.district or not request.city:
+                return _log_and_return(
+                    db,
+                    request.user_id,
+                    request.message,
+                    {
+                        "answer": "Please select your district and city so I can find polling booths locally.",
+                        "source": "location",
+                        "sources": [],
+                        "meta": {
+                            "required": ["district", "city"],
+                            "booths": [],
+                        },
+                    },
+                    intent,
+                )
+
+            booths = []
+            if request.lat is not None and request.lng is not None:
+                booths = get_nearest_booths(
+                    db=db,
+                    district=request.district,
+                    city=request.city,
+                    lat=request.lat,
+                    lng=request.lng,
+                )
+
+            if not booths:
+                booths = get_booths(
+                    db=db,
+                    district=request.district,
+                    city=request.city,
+                    query=request.message,
+                )
+
+            if not booths:
+                booths = get_booths(
+                    db=db,
+                    district=request.district,
+                    city=request.city,
+                )
+
+            if not booths:
+                answer = f"No polling booths found for {request.city}, {request.district}."
+            elif intent == "GET_DIRECTIONS":
+                answer = "I found matching polling booths. Use the booth address details below for local directions."
+            else:
+                answer = f"Found {len(booths)} polling booths in {request.city}."
+
+            return _log_and_return(
+                db,
+                request.user_id,
+                request.message,
+                {
+                    "answer": answer,
+                    "source": "location",
+                    "sources": [],
+                    "meta": {
+                        "district": request.district,
+                        "city": request.city,
+                        "booths": booths,
+                    },
+                },
+                intent,
+            )
+
+        result = get_phase3_engine().route(
             query=request.message,
             context=user_context,
-            db=db
+            db=db,
         )
 
-        #  LOG OUTPUT
-        print("ROUTE:", result.get("source"))
-        print("SOURCES:", result.get("sources", []))
-        print("META:", result.get("meta", {}))
-
-    except Exception as e:
-        print("ERROR:", str(e))
-
+    except Exception as exc:
         return {
-            "answer": "Something went wrong. Please try again.",
+            "answer": "Something went wrong while processing your request.",
             "source": "error",
             "sources": [],
-            "meta": {"error": str(e)}
+            "meta": {"error": str(exc)},
         }
 
-    #  LOG INTERACTION
-    log_interaction(
-        db=db,
-        user_id=request.user_id,
-        query=request.message,
-        response=result.get("answer"),
-        intent=engine.detect_intent(request.message),
-        state=result.get("meta", {}).get("current_stage")
-    )
-
-    #  RETURN RESPONSE
-    return {
-        "success": True,
-        "message": result.get("answer"),
-        "data": {
+    return _log_and_return(
+        db,
+        request.user_id,
+        request.message,
+        {
+            "answer": result.get("answer"),
             "source": result.get("source"),
-            "sources": result.get("sources", [])
+            "sources": result.get("sources", []),
+            "meta": result.get("meta", {}),
         },
-        "meta": result.get("meta")
-    }
+        intent,
+    )

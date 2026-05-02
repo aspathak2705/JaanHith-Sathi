@@ -1,13 +1,18 @@
 from fastapi import FastAPI
 from app.api.user import router as user_router
 from app.api.election import router as election_router
-from app.core.database import Base, engine
-from app.models import user, state
+from app.db.base import Base
+from app.db.session import engine
+from app.db.location_models import Booth
+from app.models import interactions, user, state
 from app.api.chat import router as chat_router
 from app.api import auth
+from app.api.location import router as location_router
 
 
 app = FastAPI(title="CivicGuide AI Backend")
+
+app.include_router(location_router)
 
 app.include_router(auth.router)
 

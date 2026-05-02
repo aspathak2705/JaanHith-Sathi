@@ -1,4 +1,7 @@
+
 from nltk.stem import WordNetLemmatizer
+from typing import Optional
+
 from app.services.journey_service import get_journey_info
 from app.services.state_service import update_user_state
 from app.services.interaction_service import get_user_history
@@ -11,19 +14,61 @@ class DecisionEngine:
     def __init__(self, rag_pipeline):
         self.rag = rag_pipeline
 
-    # Normalize Query
+    #  Normalize Query
     def normalize_query(self, query: str):
         words = query.lower().split()
         lemmatized = [lemmatizer.lemmatize(word) for word in words]
         return " ".join(lemmatized)
 
-    
-    # Intent Detection 
+    #  Intent Detection (UPDATED FOR DATASET PHASE 4)
     def detect_intent(self, query: str):
         query = self.normalize_query(query)
+        q = query.lower()
 
-        
-        if any(k in query for k in [
+        # Phase 4: Booth / location intent
+        if any(word in q for word in [
+            "booth",
+            "polling station",
+            "polling booth",
+            "voting booth",
+            "voter center",
+            "voter centre",
+            "find booth",
+            "where should i vote",
+            "voting location",
+            "nearest booth",
+            "near me",
+            "my booth",
+            "where do i vote"
+        ]):
+            return "FIND_BOOTH"
+
+        #  NEW: Area-based detection (CRITICAL for dataset)
+        if any(word in q for word in [
+            "nagar",
+            "society",
+            "colony",
+            "area",
+            "road",
+            "chowk",
+            "wadi",
+            "peth"
+        ]):
+            return "FIND_BOOTH"
+
+        # Directions (optional fallback)
+        if any(word in q for word in [
+            "directions",
+            "direction",
+            "how to go",
+            "navigate",
+            "route",
+            "map"
+        ]):
+            return "GET_DIRECTIONS"
+
+        #  Phase 3 intents
+        if any(k in q for k in [
             "what next",
             "next step",
             "what should i do",
@@ -32,7 +77,7 @@ class DecisionEngine:
         ]):
             return "what_next"
 
-        elif any(k in query for k in [
+        elif any(k in q for k in [
             "why am i eligible",
             "why can i vote",
             "explain eligibility",
@@ -40,7 +85,7 @@ class DecisionEngine:
         ]):
             return "eligibility_explanation"
 
-        elif any(k in query for k in [
+        elif any(k in q for k in [
             "am i eligible",
             "can i vote",
             "eligible to vote",
@@ -48,7 +93,7 @@ class DecisionEngine:
         ]):
             return "eligibility"
 
-        elif any(k in query for k in [
+        elif any(k in q for k in [
             "document",
             "required",
             "proof",
@@ -57,7 +102,7 @@ class DecisionEngine:
         ]):
             return "documents"
 
-        elif any(k in query for k in [
+        elif any(k in q for k in [
             "register",
             "registration",
             "process",
@@ -68,8 +113,19 @@ class DecisionEngine:
 
         return "general"
 
-    # MAIN ROUTER 
+    #  Route classification
+    def route_request(self, intent: str) -> str:
+        if intent in ["FIND_BOOTH", "GET_DIRECTIONS"]:
+            return "LOCATION_ENGINE"
+        return "KNOWLEDGE_ENGINE"
+
+    #  State-based trigger
+    def should_trigger_location(self, user_state: Optional[str]) -> bool:
+        return user_state == "READY_TO_VOTE"
+
+    #  MAIN ROUTER (Phase 3 only)
     def route(self, query: str, context: dict = None, db=None):
+
         if not context:
             return {
                 "answer": "User context not found",
@@ -77,16 +133,15 @@ class DecisionEngine:
                 "sources": [],
                 "meta": {}
             }
+
         intent = self.detect_intent(query)
+        user_state = context.get("state", "NEW_USER")
 
         history = get_user_history(db, context["user_id"])
         recommendations = generate_recommendations(user_state, history)
-
-        #  ALWAYS derive journey info
-        user_state = context.get("state", "NEW_USER") if context else "NEW_USER"
         journey = get_journey_info(user_state)
 
-        # 1. WHAT NEXT (NEW CORE)
+        #  WHAT NEXT
         if intent == "what_next":
             return {
                 "answer": f"You are currently at '{journey['current_stage']}'. Next step: {journey['next_step']}",
@@ -95,13 +150,12 @@ class DecisionEngine:
                 "meta": journey
             }
 
-        # 2. ELIGIBILITY (RULE)
+        #  ELIGIBILITY
         elif intent == "eligibility":
             result = self.handle_rule_based(context, journey)
 
             current_state = context.get("state")
 
-            # ✅ Only update if not already updated
             if (
                 current_state != "ELIGIBILITY_CHECKED"
                 and context.get("age") >= 18
@@ -113,26 +167,36 @@ class DecisionEngine:
 
             return result
 
-        # 3. ELIGIBILITY EXPLANATION
+        #  ELIGIBILITY EXPLANATION
         elif intent == "eligibility_explanation":
             return self.handle_eligibility_explanation(context, journey)
-        
-        # 4. RAG (DOCUMENTS / PROCESS / GENERAL)
+
+        #  PROCESS (RAG)
         elif intent == "process":
             rag_result = self.rag.generate_answer(query)
 
             new_state = update_user_state(db, context["user_id"], "REGISTERED")
-
             updated_journey = get_journey_info(new_state)
 
             return {
-                    "answer": rag_result.get("answer"),
-                    "source": "rag",
-                    "sources": rag_result.get("sources", []),
-                    "meta": updated_journey
-                }
+                "answer": rag_result.get("answer"),
+                "source": "rag",
+                "sources": rag_result.get("sources", []),
+                "meta": updated_journey
+            }
 
-        # FALLBACK
+        #  DOCUMENTS
+        elif intent == "documents":
+            rag_result = self.rag.generate_answer(query)
+
+            return {
+                "answer": rag_result.get("answer"),
+                "source": "rag",
+                "sources": rag_result.get("sources", []),
+                "meta": journey
+            }
+
+        #  FALLBACK
         return {
             "answer": "I’m not sure how to answer that yet.",
             "source": "fallback",
@@ -140,7 +204,7 @@ class DecisionEngine:
             "meta": journey
         }
 
-    # RULE ENGINE (PHASE 1 LOGIC)
+    #  RULE ENGINE
     def handle_rule_based(self, user_context, journey):
         if not user_context:
             return {
@@ -168,8 +232,7 @@ class DecisionEngine:
                 "meta": journey
             }
 
-
-    # EXPLANATION (RULE + LLM)
+    #  EXPLANATION (RULE + LLM)
     def handle_eligibility_explanation(self, user_context, journey):
         if not user_context:
             return {
