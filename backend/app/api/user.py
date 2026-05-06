@@ -36,3 +36,11 @@ def check_eligibility(user_id: int, db: Session = Depends(get_db)):
         return {"error": "User not found"}
 
     return RuleEngine.check_eligibility(user.age)
+
+@router.get("/{user_id}")
+def get_user_profile(user_id: int, db: Session = Depends(get_db)):
+    from app.services.user_context import get_user_context
+    context = get_user_context(db, user_id)
+    if not context:
+        return {"error": "User not found"}
+    return context
