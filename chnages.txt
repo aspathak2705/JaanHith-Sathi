@@ -1,0 +1,7 @@
+Changes
+1. the textbox of login and signup page are not visible properly make them visible. add boundary to them.
+2. feel of application , make the feel of application like government website https://aikosh.indiaai.gov.in/home, https://www.data.gov.in/. change the curre t images according to that, make it feel like government website
+3. remove the journey dashboard, recommende next step, and join local assemble option .
+4. keep the journey dashboard only on home page.
+5. provide a sample set of 15 to 16 question for user to ask beside the chatbot as help, as they don't know and main motive of our application is tat only to make them understand what is eection process anad all , what are they how are they , etc. so provide a detailed set of question for our user of q5 to 20 question whuch our civic assistant cn answer.
+6.in location page rather than view logictics detail , remnae it with view on map and after clicking on that button the user should directly redirected to the google map with the location open.

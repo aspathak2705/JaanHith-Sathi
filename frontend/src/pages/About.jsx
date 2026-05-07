@@ -21,7 +21,7 @@ export default function About() {
           </div>
           <div className="col-span-5">
             <div className="relative rounded-xl overflow-hidden shadow-xl aspect-square bg-blue-50">
-              <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBitnD-dWKFzd9gY6QuDfQTP9eSJ8PQQR1xKzHKb4s2uwfL8E25w9W7tGWL_NW2Umhose16-km-LLxLQsoz6XBJeATlr8yWYrACxCkTOJpmiw8Io_pOVqHs5qFacP1CWUz88sOw9XdUB5YlIKEUq5BUJEKyVA_92k1wFcRtAPDkuOJ6kt0A9-htwhnouM5MJpwUv4OoCQpQL29ZCxbxoQi9ETs3NlOQLIdB0SQYaXul0HhY6lPndigNFvYyx0pMMxkxNBJpEwfmhOpn" alt="Building" />
+              <img className="w-full h-full object-cover" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Supreme_Court_of_India_-_01.jpg/1200px-Supreme_Court_of_India_-_01.jpg" alt="Supreme Court of India" />
             </div>
           </div>
         </div>

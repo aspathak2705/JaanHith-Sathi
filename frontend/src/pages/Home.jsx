@@ -38,7 +38,7 @@ export default function Home() {
     <div className="max-w-[1200px] mx-auto p-gutter space-y-stack-lg pb-12">
       <section className="relative h-[400px] rounded-xl overflow-hidden bg-primary-container flex items-center px-12 mt-6">
         <div className="absolute inset-0 opacity-20 pointer-events-none">
-          <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAA6MEMqjIsVi-YeaZrn1VrVCDAPMAg9eFC2Oj6AlRIv8O2E_494zQPOXSf5jo6vWbcjksEvST9qJbipYJwDbWMHVZCHNlYfxchu4Ju_7_b7GQBKrVn5yi-Gf6iphyGyenI9ICA2qJMTxe-RTPUlbIg2cTDaiU72T707zzJWu1LL81pCudKFCCVBpP_3qq2HJA_5JV4SB2-QqA4rl48Og68NvsD1WIXMxAeMnFDkMQQwnWwlGSNKIF-Ucbf1lmpXkm7Jme5lfgyyOFp" alt="Tech background"/>
+          <img className="w-full h-full object-cover" src="https://upload.wikimedia.org/wikipedia/commons/e/ea/Parliament_House_of_India_New_Delhi.jpg" alt="Parliament House"/>
         </div>
         <div className="relative z-10 max-w-2xl space-y-6">
           <div className="inline-block px-3 py-1 bg-secondary text-on-secondary text-label-sm rounded-full">AI-Powered Civic Platform</div>

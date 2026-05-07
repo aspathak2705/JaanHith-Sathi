@@ -191,8 +191,11 @@ export default function LocationPage() {
                     <span>{booth.distance_km !== undefined ? `${booth.distance_km} km away` : 'Distance Unknown'}</span>
                   </div>
                 </div>
-                <button className="mt-4 w-full text-center py-2 text-xs font-bold text-primary-container border border-gray-100 rounded group-hover:border-primary-container transition-all">
-                  View Logistics Detail
+                <button 
+                  onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([booth.building, booth.area, booth.room].filter(Boolean).join(', ') + ' ' + city)}`, '_blank')}
+                  className="mt-4 w-full text-center py-2 text-xs font-bold text-primary-container border border-gray-100 rounded group-hover:border-primary-container transition-all"
+                >
+                  View on Map
                 </button>
               </div>
             ))}

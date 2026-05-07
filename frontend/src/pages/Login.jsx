@@ -44,11 +44,11 @@ export default function Login() {
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
             <label className="block text-sm font-bold text-on-surface mb-1">Email</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="w-full border-gray-200 rounded-lg focus:ring-primary-container" />
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-container outline-none" />
           </div>
           <div>
             <label className="block text-sm font-bold text-on-surface mb-1">Password</label>
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full border-gray-200 rounded-lg focus:ring-primary-container" />
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-container outline-none" />
           </div>
           <button type="submit" disabled={loading} className="w-full bg-primary-container text-white py-3 rounded-lg font-bold hover:opacity-90 disabled:opacity-50 mt-4">
             {loading ? 'Signing in...' : 'Sign In'}

@@ -44,24 +44,24 @@ export default function Register() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-bold text-on-surface mb-1">Name</label>
-              <input type="text" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} required className="w-full border-gray-200 rounded-lg focus:ring-primary-container" />
+              <input type="text" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} required className="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-container outline-none" />
             </div>
             <div>
               <label className="block text-sm font-bold text-on-surface mb-1">Age</label>
-              <input type="number" value={formData.age} onChange={(e) => setFormData({...formData, age: e.target.value})} required className="w-full border-gray-200 rounded-lg focus:ring-primary-container" />
+              <input type="number" value={formData.age} onChange={(e) => setFormData({...formData, age: e.target.value})} required className="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-container outline-none" />
             </div>
           </div>
           <div>
             <label className="block text-sm font-bold text-on-surface mb-1">Email</label>
-            <input type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} required className="w-full border-gray-200 rounded-lg focus:ring-primary-container" />
+            <input type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} required className="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-container outline-none" />
           </div>
           <div>
             <label className="block text-sm font-bold text-on-surface mb-1">Password</label>
-            <input type="password" value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} required className="w-full border-gray-200 rounded-lg focus:ring-primary-container" />
+            <input type="password" value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} required className="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-container outline-none" />
           </div>
           <div>
             <label className="block text-sm font-bold text-on-surface mb-1">Location</label>
-            <input type="text" value={formData.location} onChange={(e) => setFormData({...formData, location: e.target.value})} required className="w-full border-gray-200 rounded-lg focus:ring-primary-container" placeholder="e.g., Central District, New Delhi" />
+            <input type="text" value={formData.location} onChange={(e) => setFormData({...formData, location: e.target.value})} required className="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-container outline-none" placeholder="e.g., Central District, New Delhi" />
           </div>
           <button type="submit" disabled={loading} className="w-full bg-primary-container text-white py-3 rounded-lg font-bold hover:opacity-90 disabled:opacity-50 mt-6">
             {loading ? 'Registering...' : 'Register'}

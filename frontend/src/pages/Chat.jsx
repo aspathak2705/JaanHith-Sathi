@@ -104,9 +104,9 @@ export default function Chat() {
   };
 
   return (
-    <div className="h-[calc(100vh-64px)] flex overflow-hidden">
-      {/* Left Side: AI Chat Interface (60%) */}
-      <section className="w-3/5 h-full flex flex-col bg-white border-r border-gray-100">
+    <div className="h-[calc(100vh-64px)] flex overflow-hidden bg-slate-50/30">
+      {/* AI Chat Interface */}
+      <section className="w-full max-w-5xl mx-auto h-full flex flex-col bg-white border-x border-gray-100 shadow-sm">
         <div className="flex-1 overflow-y-auto p-8 space-y-6">
           {messages.map((msg, idx) => (
             <div key={idx} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
@@ -152,7 +152,23 @@ export default function Chat() {
         {/* Chat Interaction Area */}
         <div className="p-6 border-t border-gray-100 bg-slate-50/50">
           <div className="flex gap-2 mb-4 overflow-x-auto pb-2 no-scrollbar">
-            {['Am I eligible?', 'Documents needed', 'Locate Polling Booth', 'Track Application'].map((chip, idx) => (
+            {[
+              'Am I eligible to vote in the upcoming municipal elections?',
+              'What documents are needed to register for voting?',
+              'How can I locate my nearest polling booth?',
+              'Track my current voter registration application',
+              'What is the election process in India?',
+              'How to apply for a new Voter ID card online?',
+              'How to update my address on my existing Voter ID?',
+              'What is the role of the Election Commission of India?',
+              'How can I check if my name is on the electoral roll?',
+              'What should I do if I lost my Voter ID card?',
+              'Can I vote if I am living in another state temporarily?',
+              'How do I file a grievance regarding the voting process?',
+              'What are the responsibilities of a local assembly?',
+              'Explain the process of postal ballot voting.',
+              'What is a VVPAT and how does it work?'
+            ].map((chip, idx) => (
               <button 
                 key={idx} 
                 onClick={() => sendMessage(chip)}
@@ -202,134 +218,7 @@ export default function Chat() {
         </div>
       </section>
 
-      {/* Right Side: Journey Dashboard (40%) */}
-      <section className="w-2/5 h-full overflow-y-auto p-8 bg-slate-50/30">
-        <div className="mb-8">
-          <h3 className="text-h3 font-h3 text-primary mb-2">Journey Dashboard</h3>
-          <p className="text-sm text-outline">Tracking your civic progress</p>
-        </div>
-        
-        {/* Vertical Stepper */}
-        <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm mb-8">
-          <div className="space-y-0">
-            {/* Step 1 */}
-            <div className="relative pb-10">
-              <div className={`absolute left-4 top-8 bottom-0 w-0.5 ${level > 1 ? 'bg-secondary' : 'bg-gray-200'}`}></div>
-              <div className="flex items-start gap-4 relative">
-                {level >= 1 ? (
-                  <div className="w-8 h-8 rounded-full bg-secondary text-white flex items-center justify-center z-10">
-                    <span className="material-symbols-outlined text-[18px]" style={{fontVariationSettings: "'FILL' 1"}}>check</span>
-                  </div>
-                ) : (
-                   <div className="w-8 h-8 rounded-full bg-gray-100 text-gray-400 border border-gray-200 flex items-center justify-center z-10">
-                    <span className="text-xs font-bold">01</span>
-                  </div>
-                )}
-                <div>
-                  <h4 className={`text-sm font-bold ${level >= 1 ? 'text-primary' : 'text-gray-400'}`}>Eligibility</h4>
-                  <p className="text-xs text-outline">{level >= 1 ? 'Completed' : 'Pending'}</p>
-                </div>
-              </div>
-            </div>
-            {/* Step 2 */}
-            <div className="relative pb-10">
-              <div className={`absolute left-4 top-8 bottom-0 w-0.5 ${level > 2 ? 'bg-secondary' : 'bg-gray-200'}`}></div>
-              <div className="flex items-start gap-4 relative">
-                {level > 2 ? (
-                  <div className="w-8 h-8 rounded-full bg-secondary text-white flex items-center justify-center z-10">
-                    <span className="material-symbols-outlined text-[18px]" style={{fontVariationSettings: "'FILL' 1"}}>check</span>
-                  </div>
-                ) : level === 2 ? (
-                  <div className="w-8 h-8 rounded-full bg-primary-container text-white flex items-center justify-center z-10 shadow-[0_0_0_4px_rgba(0,51,102,0.1)]">
-                    <span className="text-xs font-bold">02</span>
-                  </div>
-                ) : (
-                  <div className="w-8 h-8 rounded-full bg-gray-100 text-gray-400 border border-gray-200 flex items-center justify-center z-10">
-                    <span className="text-xs font-bold">02</span>
-                  </div>
-                )}
-                <div>
-                  <h4 className={`text-sm font-bold ${level >= 2 ? 'text-primary' : 'text-gray-400'}`}>Verification</h4>
-                  <p className={`text-xs mt-1 flex items-center gap-1 font-bold ${level === 2 ? 'text-secondary' : 'text-gray-400'}`}>
-                    {level > 2 ? 'Completed' : level === 2 ? <><span className="material-symbols-outlined text-[14px]">pending_actions</span> Pending</> : 'Locked'}
-                  </p>
-                </div>
-              </div>
-            </div>
-            {/* Step 3 */}
-            <div className="relative pb-10">
-              <div className={`absolute left-4 top-8 bottom-0 w-0.5 ${level > 3 ? 'bg-secondary' : 'bg-gray-200'}`}></div>
-              <div className="flex items-start gap-4 relative">
-                 {level > 3 ? (
-                  <div className="w-8 h-8 rounded-full bg-secondary text-white flex items-center justify-center z-10">
-                    <span className="material-symbols-outlined text-[18px]" style={{fontVariationSettings: "'FILL' 1"}}>check</span>
-                  </div>
-                ) : level === 3 ? (
-                  <div className="w-8 h-8 rounded-full bg-primary-container text-white flex items-center justify-center z-10 shadow-[0_0_0_4px_rgba(0,51,102,0.1)]">
-                    <span className="text-xs font-bold">03</span>
-                  </div>
-                ) : (
-                  <div className="w-8 h-8 rounded-full bg-gray-100 text-gray-400 border border-gray-200 flex items-center justify-center z-10">
-                    <span className="text-xs font-bold">03</span>
-                  </div>
-                )}
-                <div>
-                  <h4 className={`text-sm font-bold ${level >= 3 ? 'text-primary' : 'text-gray-400'}`}>Registration</h4>
-                  <p className="text-xs text-gray-400 mt-1">{level > 3 ? 'Completed' : (level === 3 ? 'Pending' : 'Locked')}</p>
-                </div>
-              </div>
-            </div>
-            {/* Step 4 */}
-            <div className="relative">
-              <div className="flex items-start gap-4 relative">
-                {level >= 4 ? (
-                  <div className="w-8 h-8 rounded-full bg-secondary text-white flex items-center justify-center z-10">
-                    <span className="material-symbols-outlined text-[18px]" style={{fontVariationSettings: "'FILL' 1"}}>how_to_vote</span>
-                  </div>
-                ) : (
-                  <div className="w-8 h-8 rounded-full bg-gray-100 text-gray-400 border border-gray-200 flex items-center justify-center z-10">
-                    <span className="material-symbols-outlined text-[18px]">how_to_vote</span>
-                  </div>
-                )}
-                <div>
-                  <h4 className={`text-sm font-bold ${level >= 4 ? 'text-primary' : 'text-gray-400'}`}>Vote Ready</h4>
-                  <p className="text-xs text-gray-400 mt-1">{level >= 4 ? 'Ready' : 'Locked'}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        {/* Recommended Next Steps */}
-        {level < 4 && (
-          <div>
-            <h4 className="text-sm font-bold text-primary mb-4 uppercase tracking-widest">Recommended Next Steps</h4>
-            <div className="space-y-3">
-              <div 
-                onClick={() => fileInputRef.current?.click()}
-                className="p-4 bg-white rounded-xl border border-gray-200 flex items-center gap-4 hover:border-primary-container transition-colors cursor-pointer group shadow-sm"
-              >
-                <div className="w-10 h-10 rounded bg-secondary/10 flex items-center justify-center text-secondary">
-                  <span className="material-symbols-outlined">upload_file</span>
-                </div>
-                <div className="flex-1">
-                  <h5 className="text-sm font-bold text-primary">Upload ID Proof</h5>
-                  <p className="text-xs text-outline">Click here to upload document for verification</p>
-                </div>
-                <span className="material-symbols-outlined text-outline group-hover:translate-x-1 transition-transform">chevron_right</span>
-              </div>
-
-              <div className="mt-6 rounded-2xl overflow-hidden relative h-40 group cursor-pointer shadow-lg">
-                <img className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfei0UgM_2l1OXzsYotwXx_cc9nMDhUC0zNTmQ0_VWNTmdMSvqyR-cwTJdN6Bccu3ZmjAMzgqqD-Fh5AgfpCyHd_drgEC3IJIwsrLvrSaAQZc0ra2t9BAtL_o2LDAcV6OcN8zqzEc8eGd2J49gkiloKtudWn09octYGFxI7IcvwO2bu-nxC9yY2cXPdFwTzV1hAIuu_qRN5FM5c3l1eMESd83aRUPzWy5FzO6bCpCg88yG69UQ_Y5g6qfkGd1WB9Pl27nkr8PhvTiH" alt="Civic Meeting"/>
-                <div className="absolute inset-0 bg-gradient-to-t from-primary/90 to-transparent p-6 flex flex-col justify-end">
-                  <h5 className="text-white font-bold text-sm">Join Local Assembly</h5>
-                  <p className="text-white/80 text-xs mt-1">Participate in ward-level discussions this weekend.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </section>
     </div>
   );
 }
