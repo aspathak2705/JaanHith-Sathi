@@ -1,4 +1,5 @@
-import io
+from pathlib import Path
+
 from sqlalchemy.orm import Session
 from app.models.document import Document
 
@@ -8,31 +9,57 @@ try:
 except ImportError:
     reader = None
 
-async def process_document(file_content: bytes, filename: str, db: Session):
+ALLOWED_EXTENSIONS = {".pdf", ".png", ".jpg", ".jpeg", ".webp"}
+
+
+async def process_document(
+    file_content: bytes,
+    filename: str,
+    content_type: str,
+    user_id: int,
+    document_name: str,
+    document_type: str,
+    db: Session,
+):
+    extension = Path(filename or "").suffix.lower()
+    if extension not in ALLOWED_EXTENSIONS:
+        raise ValueError("Unsupported document format. Please upload PDF, PNG, JPG, JPEG, or WEBP files.")
+
     extracted_text = ""
     if reader:
-        # Perform OCR
-        # This is a basic implementation. Might need image processing.
         try:
             result = reader.readtext(file_content, detail=0)
             extracted_text = " ".join(result)
-        except Exception as e:
-            extracted_text = f"Error processing document: {str(e)}"
+        except Exception as exc:
+            extracted_text = f"Document stored successfully. OCR unavailable for this file: {str(exc)}"
     else:
-        extracted_text = "EasyOCR not installed. Document OCR skipped."
+        extracted_text = "Document stored successfully. OCR is not enabled in this environment."
 
-    # Dummy validation logic
-    is_valid = "id" in extracted_text.lower() or "name" in extracted_text.lower()
+    lowered_text = extracted_text.lower()
+    is_valid = bool(lowered_text and ("id" in lowered_text or "name" in lowered_text or "address" in lowered_text))
 
-    # Save to db
     doc = Document(
-        user_id=1, # Dummy user ID
-        document_type="Unknown", # Determine from text or user input
+        user_id=user_id,
+        document_name=document_name,
+        document_type=document_type or document_name,
+        file_name=filename,
+        mime_type=content_type,
+        file_size=len(file_content),
         extracted_text=extracted_text,
-        is_valid=is_valid
+        is_valid=is_valid,
     )
     db.add(doc)
     db.commit()
     db.refresh(doc)
     
-    return {"document_id": doc.id, "extracted_text": extracted_text, "is_valid": is_valid}
+    return {
+        "document_id": doc.id,
+        "document_name": doc.document_name,
+        "document_type": doc.document_type,
+        "file_name": doc.file_name,
+        "mime_type": doc.mime_type,
+        "file_size": doc.file_size,
+        "uploaded_at": doc.uploaded_at,
+        "extracted_text": extracted_text,
+        "is_valid": is_valid,
+    }

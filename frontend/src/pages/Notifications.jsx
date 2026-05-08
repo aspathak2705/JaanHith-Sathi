@@ -1,24 +1,13 @@
-import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useUser } from '../context/UserContext';
 
 export default function Notifications() {
-  const [notifications, setNotifications] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const userId = localStorage.getItem('user_id');
-    if (!userId) return;
-
-    fetch(`http://127.0.0.1:8000/notification/list/${userId}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.status === 'success') {
-          setNotifications(data.data);
-        }
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, []);
+  const {
+    notifications,
+    loading,
+    markAllNotificationsRead,
+    markNotificationRead,
+  } = useUser();
 
   const getIconColor = (color) => {
     const colors = {
@@ -38,11 +27,11 @@ export default function Notifications() {
           <h2 className="text-3xl font-bold text-primary">Notifications</h2>
           <p className="text-gray-500 mt-2">Stay updated on your civic journey and important deadlines.</p>
         </div>
-        <button className="text-sm font-bold text-primary hover:underline">Mark all as read</button>
+        <button onClick={markAllNotificationsRead} className="text-sm font-bold text-primary hover:underline">Mark all as read</button>
       </div>
 
       <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-        {loading ? (
+        {loading.notifications ? (
           <div className="text-center py-10">
             <span className="material-symbols-outlined animate-spin text-4xl text-gray-300">refresh</span>
             <p className="text-gray-500 mt-4">Loading alerts...</p>
@@ -58,7 +47,7 @@ export default function Notifications() {
         ) : (
           <div className="divide-y divide-gray-100">
             {notifications.map((notification, idx) => (
-              <div 
+              <div
                 key={idx} 
                 className={`p-6 flex items-start gap-5 transition-colors hover:bg-slate-50 ${notification.is_urgent ? 'bg-amber-50/30' : ''}`}
               >
@@ -81,7 +70,11 @@ export default function Notifications() {
                   <p className="text-gray-600 text-sm mb-4 leading-relaxed">{notification.message}</p>
                   
                   {notification.action_text && (
-                    <Link to={notification.type === 'document' ? '/chat' : notification.type === 'location' ? '/location' : '/chat'} className={`inline-block px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition-all hover:-translate-y-0.5 ${notification.is_urgent ? 'bg-amber-500 text-white hover:bg-amber-600 shadow-amber-500/20' : 'bg-primary-container text-white hover:bg-primary shadow-primary/20'}`}>
+                    <Link
+                      to={notification.target_path || '/notifications'}
+                      onClick={() => markNotificationRead(notification.id)}
+                      className={`inline-block px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition-all hover:-translate-y-0.5 ${notification.is_urgent ? 'bg-amber-500 text-white hover:bg-amber-600 shadow-amber-500/20' : 'bg-primary-container text-white hover:bg-primary shadow-primary/20'}`}
+                    >
                       {notification.action_text}
                     </Link>
                   )}

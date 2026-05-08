@@ -12,6 +12,8 @@ def get_user_context(db: Session, user_id: int):
 
     return {
         "user_id": user.id,
+        "name": user.name,
+        "email": user.email,
         "age": user.age,
         "location": user.location,
         "is_citizen": user.is_citizen,

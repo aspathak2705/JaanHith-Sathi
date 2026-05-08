@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useUser } from '../context/UserContext';
 
 export default function Chat() {
   const [messages, setMessages] = useState([
@@ -10,6 +11,7 @@ export default function Chat() {
   const [profile, setProfile] = useState(null);
   const endRef = useRef(null);
   const fileInputRef = useRef(null);
+  const { refreshAll } = useUser();
 
   const scrollToBottom = () => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -45,12 +47,16 @@ export default function Chat() {
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
+    const userId = localStorage.getItem('user_id');
 
     const timeNow = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
     setMessages(prev => [...prev, { text: `Uploading document: ${file.name}...`, sender: 'user', time: timeNow }]);
     setIsLoading(true);
 
     const formData = new FormData();
+    formData.append('user_id', userId || '1');
+    formData.append('document_name', file.name.replace(/\.[^/.]+$/, ''));
+    formData.append('document_type', 'Identity Proof');
     formData.append('file', file);
 
     try {
@@ -59,15 +65,19 @@ export default function Chat() {
         body: formData
       });
       const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.detail || 'Document upload failed.');
+      }
       const botTime = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
       setMessages(prev => [...prev, { 
         text: `Document processed successfully. Extracted Validation Data:\n\n${JSON.stringify(data.data || data, null, 2)}`, 
         sender: 'bot', 
         time: botTime 
       }]);
+      refreshAll();
     } catch (e) {
       const errTime = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-      setMessages(prev => [...prev, { text: "Error connecting to document service.", sender: 'bot', time: errTime }]);
+      setMessages(prev => [...prev, { text: e.message || "Error connecting to document service.", sender: 'bot', time: errTime }]);
     } finally {
       setIsLoading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -95,6 +105,7 @@ export default function Chat() {
       const data = await res.json();
       const botTime = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
       setMessages(prev => [...prev, { text: data.answer, sender: 'bot', time: botTime }]);
+      refreshAll();
     } catch (e) {
       const errTime = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
       setMessages(prev => [...prev, { text: "Error connecting to backend.", sender: 'bot', time: errTime }]);

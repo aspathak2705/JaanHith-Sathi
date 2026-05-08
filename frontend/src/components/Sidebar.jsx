@@ -1,27 +1,15 @@
 import { Link, useLocation } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useUser } from '../context/UserContext';
 
 export default function Sidebar() {
   const location = useLocation();
-  const [profile, setProfile] = useState(null);
-
-  useEffect(() => {
-    const userId = localStorage.getItem('user_id');
-    if (userId) {
-      fetch(`http://127.0.0.1:8000/user/${userId}`)
-        .then(res => res.json())
-        .then(data => {
-          if(!data.error) setProfile(data);
-        })
-        .catch(console.error);
-    }
-  }, []);
+  const { profile, unreadCount } = useUser();
 
   const navLinks = [
     { path: '/', icon: 'home', label: 'Home' },
     { path: '/chat', icon: 'chat_bubble', label: 'Civic Assistant' },
     { path: '/location', icon: 'location_on', label: 'Location' },
-    { path: '/documents', icon: 'description', label: 'Documents' },
+    { path: '/verification', icon: 'fact_check', label: 'Verification' },
     { path: '/notifications', icon: 'notifications', label: 'Notifications' },
     { path: '/profile', icon: 'person', label: 'Profile' },
     { path: '/about', icon: 'info', label: 'About' },
@@ -53,6 +41,11 @@ export default function Sidebar() {
             >
               <span className="material-symbols-outlined" style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}>{link.icon}</span>
               <span className="font-public-sans text-sm">{link.label}</span>
+              {link.path === '/notifications' && unreadCount > 0 && (
+                <span className="ml-auto min-w-[20px] rounded-full bg-red-500 px-1.5 py-0.5 text-center text-[10px] font-bold text-white">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
             </Link>
           );
         })}
@@ -64,7 +57,7 @@ export default function Sidebar() {
           </div>
           <div>
             <p className="text-sm font-bold text-on-surface">{profile?.name || 'Citizen'}</p>
-            <p className="text-[10px] text-outline capitalize">{profile?.state ? profile.state.replace('_', ' ').toLowerCase() : 'Not verified'}</p>
+            <p className="text-[10px] text-outline capitalize">{profile?.state ? profile.state.replaceAll('_', ' ').toLowerCase() : 'Not verified'}</p>
           </div>
           <button onClick={() => { localStorage.removeItem('user_id'); window.location.href='/login'; }} className="ml-auto text-error hover:text-red-700">
             <span className="material-symbols-outlined text-sm">logout</span>

@@ -1,7 +1,4 @@
 Changes
-1. the textbox of login and signup page are not visible properly make them visible. add boundary to them.
-2. feel of application , make the feel of application like government website https://aikosh.indiaai.gov.in/home, https://www.data.gov.in/. change the curre t images according to that, make it feel like government website
-3. remove the journey dashboard, recommende next step, and join local assemble option .
-4. keep the journey dashboard only on home page.
-5. provide a sample set of 15 to 16 question for user to ask beside the chatbot as help, as they don't know and main motive of our application is tat only to make them understand what is eection process anad all , what are they how are they , etc. so provide a detailed set of question for our user of q5 to 20 question whuch our civic assistant cn answer.
-6.in location page rather than view logictics detail , remnae it with view on map and after clicking on that button the user should directly redirected to the google map with the location open.
+1. first rename the document page as verification page , which is the second stage of civic status. after the user login adn eligibility is check , the notification feature should notify him about the next stage. the notification feature should propery synchronize with the state management feature. now in verification page it should show all the documents list which are required for verifiction and then there should a upload button. after clicking on that it should take the document , document name . it should accept pdf , png, jpg , etc. after clicking on view details it should show all the details avbout document. 
+2. whenever  notification is generated it should pop up and show on window or it should show plus 1 2 or dot on notification page title on menu bar so that user can know a notification is generated.
+3. check all these changes integrates and synchronize with other modules properly. 
