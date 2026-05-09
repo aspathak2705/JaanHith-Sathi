@@ -4,7 +4,7 @@ from app.api.election import router as election_router
 from app.db.base import Base
 from app.db.session import engine
 from app.db.location_models import Booth
-from app.models import interactions, user, state, document
+from app.models import interactions, user, state, document, notification_event
 from app.api.chat import router as chat_router
 from app.api import auth
 from app.api.location import router as location_router

@@ -209,6 +209,24 @@ export function UserProvider({ children }) {
     return data.data;
   }, [fetchDocuments, fetchNotifications, fetchProfile]);
 
+  const verifyDocuments = useCallback(async () => {
+    const currentUserId = localStorage.getItem('user_id');
+    if (!currentUserId) {
+      throw new Error('You need to sign in before verifying documents.');
+    }
+
+    const res = await fetch(`${API_BASE}/document/verify/${currentUserId}`, {
+      method: 'POST',
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.detail || data.message || 'Document verification failed.');
+    }
+
+    await Promise.all([fetchDocuments(), fetchNotifications(), fetchProfile()]);
+    return data.data;
+  }, [fetchDocuments, fetchNotifications, fetchProfile]);
+
   const value = {
     profile,
     documents,
@@ -221,6 +239,7 @@ export function UserProvider({ children }) {
     fetchNotifications,
     refreshAll,
     uploadDocument,
+    verifyDocuments,
     markNotificationRead,
     markAllNotificationsRead,
     dismissToast: (notificationId) => setToasts((current) => current.filter((item) => item.id !== notificationId)),

@@ -1,6 +1,7 @@
 JOURNEY_FLOW = {
     "NEW_USER": "Check eligibility",
-    "ELIGIBILITY_CHECKED": "Register to vote",
+    "ELIGIBILITY_CHECKED": "Upload required documents for verification",
+    "VERIFICATION_CHECKED": "Proceed to registration",
     "REGISTERED": "Prepare for voting",
     "READY_TO_VOTE": "Go to polling booth"
 }

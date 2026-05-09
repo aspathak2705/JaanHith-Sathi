@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useUser } from '../context/UserContext';
+import { formatStateLabel } from '../utils/helpers';
 
 const REQUIRED_DOCUMENTS = [
   {
@@ -29,7 +30,7 @@ function formatBytes(bytes) {
 }
 
 export default function Documents() {
-  const { documents, loading, profile, uploadDocument } = useUser();
+  const { documents, loading, profile, uploadDocument, verifyDocuments } = useUser();
   const [selectedRequirement, setSelectedRequirement] = useState(null);
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [uploadState, setUploadState] = useState({
@@ -39,6 +40,7 @@ export default function Documents() {
     submitting: false,
     error: '',
   });
+  const [verifyState, setVerifyState] = useState({ submitting: false, error: '' });
 
   const uploadedByType = useMemo(() => {
     const map = new Map();
@@ -50,6 +52,17 @@ export default function Documents() {
     });
     return map;
   }, [documents]);
+
+  const requiredDocumentsStatus = REQUIRED_DOCUMENTS.map((item) => {
+    const latestDocument = (uploadedByType.get(item.type) || [])[0];
+    return {
+      ...item,
+      latestDocument,
+    };
+  });
+
+  const allRequiredUploaded = requiredDocumentsStatus.every((item) => item.latestDocument);
+  const verificationComplete = ['VERIFICATION_CHECKED', 'REGISTERED', 'REGISTRATION_IN_PROGRESS', 'READY_TO_VOTE', 'ACTIVATED', 'READY'].includes(profile?.state);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -74,6 +87,16 @@ export default function Documents() {
     }
   };
 
+  const handleVerify = async () => {
+    setVerifyState({ submitting: true, error: '' });
+    try {
+      await verifyDocuments();
+      setVerifyState({ submitting: false, error: '' });
+    } catch (error) {
+      setVerifyState({ submitting: false, error: error.message });
+    }
+  };
+
   return (
     <div className="max-w-[1200px] mx-auto p-gutter space-y-6 pb-12">
       <div className="mt-8 flex items-start justify-between gap-6">
@@ -83,7 +106,7 @@ export default function Documents() {
         </div>
         <div className="rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Current civic state</p>
-          <p className="mt-1 text-sm font-bold text-primary">{profile?.state ? profile.state.replaceAll('_', ' ') : 'NEW USER'}</p>
+          <p className="mt-1 text-sm font-bold text-primary">{formatStateLabel(profile?.state)}</p>
         </div>
       </div>
 
@@ -93,12 +116,32 @@ export default function Documents() {
             <h3 className="text-xl font-bold text-primary">Required Documents</h3>
             <p className="mt-1 text-sm text-gray-500">Upload each verification requirement in PDF, PNG, JPG, JPEG, or WEBP format.</p>
           </div>
+          <div className="text-right">
+            <button
+              onClick={handleVerify}
+              disabled={!allRequiredUploaded || verificationComplete || verifyState.submitting}
+              className="rounded-lg bg-secondary px-4 py-2 text-sm font-bold text-white disabled:cursor-not-allowed disabled:bg-gray-300"
+            >
+              {verificationComplete ? 'Verified' : verifyState.submitting ? 'Verifying...' : 'Verify Documents'}
+            </button>
+            <p className="mt-2 text-xs text-gray-500">
+              {verificationComplete ? 'Verification stage complete.' : allRequiredUploaded ? 'All three required documents uploaded. Verify button ready.' : 'Upload all three required documents to enable verification.'}
+            </p>
+          </div>
         </div>
+        {verifyState.error && (
+          <div className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{verifyState.error}</div>
+        )}
 
         <div className="grid gap-4 md:grid-cols-3">
-          {REQUIRED_DOCUMENTS.map((item) => {
-            const uploadedDocuments = uploadedByType.get(item.type) || [];
-            const latestDocument = uploadedDocuments[0];
+          {requiredDocumentsStatus.map((item) => {
+            const latestDocument = item.latestDocument;
+            const badgeClass = latestDocument?.is_valid
+              ? 'bg-green-100 text-green-700'
+              : latestDocument
+                ? 'bg-blue-100 text-blue-700'
+                : 'bg-amber-100 text-amber-700';
+            const badgeLabel = latestDocument?.is_valid ? 'Verified' : latestDocument ? 'Uploaded' : 'Pending';
             return (
               <div key={item.type} className="rounded-xl border border-gray-200 p-5">
                 <div className="flex items-start justify-between gap-4">
@@ -106,8 +149,8 @@ export default function Documents() {
                     <p className="text-lg font-bold text-primary">{item.name}</p>
                     <p className="mt-1 text-sm text-gray-500">{item.description}</p>
                   </div>
-                  <span className={`rounded-full px-3 py-1 text-xs font-bold ${latestDocument ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
-                    {latestDocument ? 'Uploaded' : 'Pending'}
+                  <span className={`rounded-full px-3 py-1 text-xs font-bold ${badgeClass}`}>
+                    {badgeLabel}
                   </span>
                 </div>
                 {latestDocument && (

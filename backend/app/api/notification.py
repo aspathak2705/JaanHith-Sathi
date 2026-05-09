@@ -6,6 +6,7 @@ from typing import List, Dict, Any
 from app.db.session import get_db
 from app.services.user_context import get_user_context
 from app.models.document import Document
+from app.models.notification_event import NotificationEvent
 
 router = APIRouter()
 
@@ -120,6 +121,20 @@ def get_verification_unlocked_notification(state: str, documents: List[Document]
         )
     return None
 
+def serialize_event(event: NotificationEvent) -> Dict[str, Any]:
+    return {
+        "id": f"event-{event.id}",
+        "target_path": event.target_path,
+        "type": event.type,
+        "title": event.title,
+        "message": event.message,
+        "action_text": event.action_text,
+        "icon": event.icon,
+        "color": event.color,
+        "is_urgent": event.is_urgent,
+        "created_at": event.created_at.isoformat(),
+    }
+
 @router.get("/list/{user_id}")
 def get_notifications(user_id: int, db: Session = Depends(get_db)):
     context = get_user_context(db, user_id)
@@ -129,6 +144,13 @@ def get_notifications(user_id: int, db: Session = Depends(get_db)):
     state = context.get("state", "NEW_USER")
     documents = db.query(Document).filter(Document.user_id == user_id).all()
     notifications = []
+    events = (
+        db.query(NotificationEvent)
+        .filter(NotificationEvent.user_id == user_id)
+        .order_by(NotificationEvent.created_at.desc())
+        .all()
+    )
+    notifications.extend(serialize_event(event) for event in events)
     
     verification = get_verification_unlocked_notification(state, documents)
     if verification: notifications.append(verification)
@@ -145,19 +167,27 @@ def get_notifications(user_id: int, db: Session = Depends(get_db)):
     voting_reminder = get_voting_day_reminder(state)
     if voting_reminder: notifications.append(voting_reminder)
         
-    notifications.append(make_notification(
-        "welcome",
-        "/",
-        type="system",
-        title="Welcome to Janhith Sathi",
-        message="Your civic intelligence platform is ready. We will notify you whenever your next stage opens up.",
-        action_text="Start Journey",
-        icon="celebration",
-        color="primary",
-        is_urgent=False,
-        created_at=(datetime.utcnow() - timedelta(days=2)).isoformat(),
-    ))
-    
+    if not events:
+        notifications.append(make_notification(
+            "welcome",
+            "/",
+            type="system",
+            title="Welcome to Janhith Sathi",
+            message="Your civic intelligence platform is ready. We will notify you whenever your next stage opens up.",
+            action_text="Start Journey",
+            icon="celebration",
+            color="primary",
+            is_urgent=False,
+            created_at=(datetime.utcnow() - timedelta(days=2)).isoformat(),
+        ))
+
     notifications.sort(key=lambda x: (not x["is_urgent"], x["created_at"]))
-    
-    return {"status": "success", "data": notifications}
+    seen_ids = set()
+    deduped = []
+    for item in notifications:
+        if item["id"] in seen_ids:
+            continue
+        seen_ids.add(item["id"])
+        deduped.append(item)
+
+    return {"status": "success", "data": deduped}

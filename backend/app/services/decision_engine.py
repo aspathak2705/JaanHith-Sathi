@@ -157,7 +157,7 @@ class DecisionEngine:
             current_state = context.get("state")
 
             if (
-                current_state != "ELIGIBILITY_CHECKED"
+                current_state == "NEW_USER"
                 and context.get("age") >= 18
                 and context.get("is_citizen")
             ):
@@ -175,7 +175,9 @@ class DecisionEngine:
         elif intent == "process":
             rag_result = self.rag.generate_answer(query)
 
-            new_state = update_user_state(db, context["user_id"], "REGISTERED")
+            new_state = user_state
+            if user_state == "VERIFICATION_CHECKED":
+                new_state = update_user_state(db, context["user_id"], "REGISTERED")
             updated_journey = get_journey_info(new_state)
 
             return {
