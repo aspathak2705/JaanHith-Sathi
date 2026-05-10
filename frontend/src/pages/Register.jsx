@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { apiUrl } from '../services/api';
 
 export default function Register() {
   const [formData, setFormData] = useState({ name: '', email: '', password: '', age: '', location: '', is_citizen: true });
@@ -13,7 +14,7 @@ export default function Register() {
     setError('');
 
     try {
-      const res = await fetch('http://127.0.0.1:8000/auth/register', {
+      const res = await fetch(apiUrl('/auth/register'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...formData, age: parseInt(formData.age) || 0 }),

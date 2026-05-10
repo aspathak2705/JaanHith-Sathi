@@ -1,5 +1,5 @@
 fastapi
-uvicorn
+uvicorn[standard]
 sqlalchemy
 geoalchemy2
 easyocr
@@ -8,3 +8,12 @@ celery
 redis
 pandas
 pydantic
+python-multipart
+python-dotenv
+openai
+numpy
+faiss-cpu
+sentence-transformers
+nltk
+openpyxl
+psycopg2-binary

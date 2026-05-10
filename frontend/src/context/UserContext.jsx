@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { apiUrl } from '../services/api';
 
 const UserContext = createContext(null);
-const API_BASE = 'http://127.0.0.1:8000';
 
 function readJson(key, fallback) {
   try {
@@ -39,7 +39,7 @@ export function UserProvider({ children }) {
 
     setLoadingFlag('profile', true);
     try {
-      const res = await fetch(`${API_BASE}/user/${currentUserId}`);
+      const res = await fetch(apiUrl(`/user/${currentUserId}`));
       const data = await res.json();
       if (!data.error) {
         setProfile(data);
@@ -62,7 +62,7 @@ export function UserProvider({ children }) {
 
     setLoadingFlag('documents', true);
     try {
-      const res = await fetch(`${API_BASE}/document/list/${currentUserId}`);
+      const res = await fetch(apiUrl(`/document/list/${currentUserId}`));
       const data = await res.json();
       if (data.status === 'success') {
         const nextDocuments = Array.isArray(data.data) ? data.data : [];
@@ -86,7 +86,7 @@ export function UserProvider({ children }) {
 
     setLoadingFlag('notifications', true);
     try {
-      const res = await fetch(`${API_BASE}/notification/list/${currentUserId}`);
+      const res = await fetch(apiUrl(`/notification/list/${currentUserId}`));
       const data = await res.json();
       if (data.status === 'success') {
         const nextNotifications = Array.isArray(data.data) ? data.data : [];
@@ -195,7 +195,7 @@ export function UserProvider({ children }) {
     formData.append('document_type', documentType);
     formData.append('file', file);
 
-    const res = await fetch(`${API_BASE}/document/upload`, {
+    const res = await fetch(apiUrl('/document/upload'), {
       method: 'POST',
       body: formData,
     });
@@ -215,7 +215,7 @@ export function UserProvider({ children }) {
       throw new Error('You need to sign in before verifying documents.');
     }
 
-    const res = await fetch(`${API_BASE}/document/verify/${currentUserId}`, {
+    const res = await fetch(apiUrl(`/document/verify/${currentUserId}`), {
       method: 'POST',
     });
     const data = await res.json();

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useUser } from '../context/UserContext';
+import { apiUrl } from '../services/api';
 
 export default function Chat() {
   const [messages, setMessages] = useState([
@@ -24,7 +25,7 @@ export default function Chat() {
   useEffect(() => {
     const userId = localStorage.getItem('user_id');
     if (userId) {
-      fetch(`http://127.0.0.1:8000/user/${userId}`)
+      fetch(apiUrl(`/user/${userId}`))
         .then(res => res.json())
         .then(data => {
           if(!data.error) setProfile(data);
@@ -60,7 +61,7 @@ export default function Chat() {
     formData.append('file', file);
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/document/upload", {
+      const res = await fetch(apiUrl('/document/upload'), {
         method: "POST",
         body: formData
       });
@@ -97,7 +98,7 @@ export default function Chat() {
 
     try {
       const userId = localStorage.getItem('user_id') || 1;
-      const res = await fetch("http://127.0.0.1:8000/chat/chat", {
+      const res = await fetch(apiUrl('/chat/chat'), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user_id: parseInt(userId), message: msgText })

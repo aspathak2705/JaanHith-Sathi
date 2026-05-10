@@ -4,7 +4,6 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from app.ai.rag_pipeline import RAGPipeline
 from app.db.session import get_db
 from app.services.decision_engine import DecisionEngine
 from app.services.interaction_service import log_interaction
@@ -20,6 +19,8 @@ phase3_engine = None
 def get_phase3_engine() -> DecisionEngine:
     global phase3_engine
     if phase3_engine is None:
+        from app.ai.rag_pipeline import RAGPipeline
+
         phase3_engine = DecisionEngine(RAGPipeline())
     return phase3_engine
 

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { apiUrl } from '../services/api';
 
 export default function LocationPage() {
   const [districts, setDistricts] = useState([]);
@@ -11,7 +12,7 @@ export default function LocationPage() {
 
   // Fetch districts on mount
   useEffect(() => {
-    fetch('http://127.0.0.1:8000/location/districts')
+    fetch(apiUrl('/location/districts'))
       .then(res => res.json())
       .then(data => {
         if (data.data && data.data.length > 0) {
@@ -25,7 +26,7 @@ export default function LocationPage() {
   // Fetch cities when district changes
   useEffect(() => {
     if (!district) return;
-    fetch(`http://127.0.0.1:8000/location/cities?district=${encodeURIComponent(district)}`)
+    fetch(apiUrl(`/location/cities?district=${encodeURIComponent(district)}`))
       .then(res => res.json())
       .then(data => {
         if (data.data && data.data.length > 0) {
@@ -45,7 +46,7 @@ export default function LocationPage() {
     setMessage('');
     setBooths([]);
     try {
-      const res = await fetch(`http://127.0.0.1:8000/location/booths?district=${encodeURIComponent(district)}&city=${encodeURIComponent(city)}`);
+      const res = await fetch(apiUrl(`/location/booths?district=${encodeURIComponent(district)}&city=${encodeURIComponent(city)}`));
       const data = await res.json();
       if (data.data && data.data.length > 0) {
         setBooths(data.data);
